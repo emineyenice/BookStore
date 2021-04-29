@@ -16,6 +16,8 @@ namespace Infrastructure.Data.Config
             builder.Property(x => x.Name)
                 .IsRequired()
                 .HasMaxLength(100);
+            builder.Property(x => x.Price)
+                .HasColumnType("decimal (18,2)");
 
             builder.HasOne(x => x.Author)
                 .WithMany()
