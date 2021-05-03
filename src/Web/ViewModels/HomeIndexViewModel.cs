@@ -12,6 +12,9 @@ namespace Web.ViewModels
         public List<SelectListItem> Categories { get; set; } //dropdown list yerine
 
         public List<SelectListItem> Authors { get; set; }
+        public int? CategoryId { get; set; }
+
+        public int? AuthorId { get; set; }
 
     }
 }

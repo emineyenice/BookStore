@@ -14,5 +14,18 @@ namespace ApplicationCore.Specifications
         {
             Query.Include(x => x.Author);
         }
+        //iki seçenek sunduk filtreleyerek de kullanılabilir filtresizde
+        public ProductsWithAuthourSpecification(int? categoryId, int? authorId) :this() //bu const. cagırılınca önce üstteki const çagirsın
+        {
+            if (categoryId.HasValue)
+            {
+                Query.Where(x => x.CategoryId == categoryId);
+            }
+
+            if (authorId.HasValue)
+            {
+                Query.Where(x => x.AuthorId == authorId);
+            }
+        }
     }
 }

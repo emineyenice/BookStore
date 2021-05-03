@@ -2,9 +2,14 @@
 @{
     ViewData["Title"] = "Home Page";
 }
+<form class="form-inline py-3">
+    <label class="mr-1">Category: </label>
+    <select asp-for="CategoryId" asp-items="Model.Categories" class="form-control mr-0 mr-sm-2"></select>
+    <label class="mr-1 mt-2 mt-sm-0">Author: </label>
+    <select asp-for="AuthorId" asp-items="Model.Authors" class="form-control"></select>
+    @*<button class="btn btn-primary">Filtrele</button>*@
 
-<select asp-items="Model.Categories" class="form-control mt-2 mb-2"></select>
-<select asp-items="Model.Authors" class="form-control mt-2 mb-2"></select>
+</form>
 <div class="row mx-md-n2">
     @foreach (var product in Model.Products)
     {
@@ -16,7 +21,7 @@
             <h5>@product.Name</h5>
         </div>
         <div class="author-name">
-            <h5>@product.AuthorName</h5>
+            @product.AuthorName
         </div>
         <div class="product-price">
             <p>@product.Price.ToString("c2")</p>
@@ -25,3 +30,11 @@
 
     }
 </div>
+@section scripts{ 
+    <script>
+        $("#CategoryId,#AuthorId").change(function () {
+            $(this).closest("form").submit();
+        });
+    </script>
+
+}
