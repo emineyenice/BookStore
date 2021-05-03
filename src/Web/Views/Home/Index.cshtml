@@ -1,8 +1,27 @@
-﻿@{
+﻿@model HomeIndexViewModel
+@{
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<select asp-items="Model.Categories" class="form-control mt-2 mb-2"></select>
+<select asp-items="Model.Authors" class="form-control mt-2 mb-2"></select>
+<div class="row mx-md-n2">
+    @foreach (var product in Model.Products)
+    {
+    <div class="col-sm-3 px-md-2 mb-3">
+        <div class="product-image-wrapper">
+            <img src="~/img/@product.PictureUri" class="product-image" />
+        </div>
+        <div class="product-name">
+            <h5>@product.Name</h5>
+        </div>
+        <div class="author-name">
+            <h5>@product.AuthorName</h5>
+        </div>
+        <div class="product-price">
+            <p>@product.Price.ToString("c2")</p>
+        </div>
+    </div>
+
+    }
 </div>
