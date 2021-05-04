@@ -13,24 +13,27 @@
 <div class="row mx-md-n2">
     @foreach (var product in Model.Products)
     {
-    <div class="col-sm-3 px-md-2 mb-3">
-        <div class="product-image-wrapper">
-            <img src="~/img/@product.PictureUri" class="product-image" />
+        <div class="col-sm-3 px-md-2 mb-3">
+            <div class="product-image-wrapper">
+                <img src="~/img/@product.PictureUri" class="product-image" />
+            </div>
+            <div class="product-name">
+                <h5>@product.Name</h5>
+            </div>
+            <div class="author-name">
+                @product.AuthorName
+            </div>
+            <div class="product-price">
+                <p>@product.Price.ToString("c2")</p>
+            </div>
         </div>
-        <div class="product-name">
-            <h5>@product.Name</h5>
-        </div>
-        <div class="author-name">
-            @product.AuthorName
-        </div>
-        <div class="product-price">
-            <p>@product.Price.ToString("c2")</p>
-        </div>
-    </div>
 
     }
 </div>
-@section scripts{ 
+
+<partial name="_PaginationPartial" model="Model.PaginationInfo" />
+
+@section scripts{
     <script>
         $("#CategoryId,#AuthorId").change(function () {
             $(this).closest("form").submit();

@@ -15,6 +15,7 @@ namespace Web.ViewModels
         public int? CategoryId { get; set; }
 
         public int? AuthorId { get; set; }
+        public PaginationInfoViewModel PaginationInfo { get; set; }
 
     }
 }

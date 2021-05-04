@@ -23,10 +23,14 @@ namespace Web.Services
             _categoryRepository = categoryRepository;
             _authorRepository = authorRepository;
         }
-        public async Task<HomeIndexViewModel> GetHomeIndexViewModel(int? categoryId, int? authorId)
+        public async Task<HomeIndexViewModel> GetHomeIndexViewModel(int? categoryId, int? authorId, int page, int pageSize)
         {
-            var products = await _productRepository.ListAsync( new ProductsWithAuthourSpecification(categoryId,authorId));
-            
+            var spec = new ProductsWithAuthourSpecification(categoryId, authorId);
+            var specPaginated = new ProductsWithAuthourSpecification(categoryId, authorId, (page - 1) * pageSize, pageSize);
+            var totalsItem = await _productRepository.CountAsync(spec);
+            var totalPages = (int)Math.Ceiling((double)totalsItem / pageSize);
+            var products = await _productRepository.ListAsync(specPaginated);
+
             var vm = new HomeIndexViewModel()
             {
                 Products = products.Select(x => new ProductViewModel()
@@ -38,7 +42,16 @@ namespace Web.Services
                     AuthorName = x.Author?.FullName //nullsa null'a aktar 
                 }).ToList(),
                 Authors = await GetAuthors(),
-                Categories = await GetCategories()
+                Categories = await GetCategories(),
+                PaginationInfo = new PaginationInfoViewModel()
+                {
+                    Page = page,
+                    ItemsOnPage = products.Count,
+                    TotalItems = totalsItem,
+                    TotalPages = totalPages,
+                    HasPrev = page > 1,
+                    HasNext = page < totalPages
+                }
             };
             return vm;
 
