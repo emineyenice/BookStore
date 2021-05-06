@@ -51,22 +51,21 @@ namespace Web.Services
         public string GetOrCreateBuyerId()
         {
             var context = _httpContextAccessor.HttpContext;
-            var user = _httpContextAccessor.HttpContext.User;
+            var user = context.User;
 
-            //return user id if user is logged in
+            // return user id if user is logged in
             if (user.Identity.IsAuthenticated)
             {
                 return user.FindFirstValue(ClaimTypes.NameIdentifier);
             }
             else
             {
-                //return anonymous user if a basket cookie exists
-                var cookie = context.Request.Cookies[Constants.BASKET_COOKIE_NAME];
-                if (cookie != null)
+                // return anonymous user id if a basket cookie exists
+                if (context.Request.Cookies.ContainsKey(Constants.BASKET_COOKIE_NAME))
                 {
-                    return cookie;
+                    return context.Request.Cookies[Constants.BASKET_COOKIE_NAME];
                 }
-                //GetOrCreateBasketId and return ana anonymous user id
+                // create and return an anonymous user id
                 else
                 {
                     string newBuyerId = Guid.NewGuid().ToString();
