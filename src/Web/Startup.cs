@@ -1,4 +1,5 @@
 using ApplicationCore.Interfaces;
+using ApplicationCore.Services;
 using Infrastructure.Data;
 using Infrastructure.Identity;
 using Microsoft.AspNetCore.Builder;
@@ -40,9 +41,11 @@ namespace Web
                 options.UseSqlServer(
                     Configuration.GetConnectionString("IdentityDbConnection")));
             services.AddDatabaseDeveloperPageExceptionFilter();
-
+            services.AddScoped<IBasketService, BasketService>();
             services.AddScoped(typeof(IAsyncRepository<>), typeof(EfRepository<>));
             services.AddScoped<IHomeViewModelService, HomeViewModelService>(); //Ne zaman IHomeViewModelService talep edilirse ona HomeViewModelService ver
+            services.AddScoped<IBasketViewModelService, BasketViewModelService>();
+
 
             services.AddDefaultIdentity<ApplicationUser>(options => options.SignIn.RequireConfirmedAccount = false)
                 .AddRoles<IdentityRole>()
