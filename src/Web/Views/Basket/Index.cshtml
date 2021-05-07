@@ -3,7 +3,7 @@
     ViewData["Title"] = "Basket";
 }
 
-<div>
+<div id="basket">
     <partial name="_BasketPartial" model="Model" />
 </div>
 
@@ -11,4 +11,24 @@
     <a asp-controller="Home" asp-action="Index" class="btn btn-secondary">Continue Shopping</a>
     <a href="#" class="btn btn-success">Checkout</a>
 </div>
+
+@section scripts{
+    <script>
+        $("body").on("click", "[data-remove-basket-item]", function (event) {
+            event.preventDefault();
+            var basketItemId = $(this).data("remove-basket-item");
+            $.ajax({
+                type: "POST",
+                url: "@Url.Action("RemoveBasketItem","Basket")",
+                data: { basketItemId: basketItemId },
+                success: function (data) {
+                    $("#basket").html(data);
+                    var basketItemsCount = $("#basketItemsCount").val();
+                    $("#navBasketItemsCount").text(basketItemsCount);
+                }
+            });
+        })
+    </script>
+
+}
 

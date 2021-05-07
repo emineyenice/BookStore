@@ -10,5 +10,6 @@ namespace ApplicationCore.Interfaces
     {
         Task AddItemToBasket(int basketId, int productId, int quantity);
         Task<int> BasketItemsCount(int basketId);
+        Task DeleteBasketItem(int basketId, int basketItemId);
     }
 }

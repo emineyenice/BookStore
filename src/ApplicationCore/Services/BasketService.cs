@@ -46,5 +46,14 @@ namespace ApplicationCore.Services
             var spec = new BasketItemSpecification(basketId);
             return await _basketItemRepository.CountAsync(spec);
         }
+
+        public async Task DeleteBasketItem(int basketId, int basketItemId)
+        {
+            var spec = new ManageBasketItemsSpecification(basketId, basketItemId); //basketId si ve basketıtemID sini alıyoruz
+            var item = await _basketItemRepository.FirstOrDefaultAsync(spec); //sepeti getir
+            await _basketItemRepository.DeleteAsync(item); //sil
+
+        }
+
     }
 }
