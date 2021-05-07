@@ -44,7 +44,7 @@ namespace Web.Services
             var specProducts = new ProductSpecification(productIds);
             var products = await _profuctRepository.ListAsync(specProducts);
             var basketItems = new List<BasketItemViewModel>();
-            foreach (var item in basket.Items)
+            foreach (var item in basket.Items.OrderBy(x => x.Id))
             {
                 var product = products.First(x => x.Id == item.ProductId);
                 basketItems.Add(new BasketItemViewModel()
