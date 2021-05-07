@@ -17,12 +17,14 @@ namespace Web.Services
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IAsyncRepository<Basket> _basketRepository;
         private readonly IBasketService _basketService;
+        private readonly IAsyncRepository<Product> _profuctRepository;
 
-        public BasketViewModelService(IHttpContextAccessor httpContextAccessor, IAsyncRepository<Basket> basketRepository, IBasketService basketService)
+        public BasketViewModelService(IHttpContextAccessor httpContextAccessor, IAsyncRepository<Basket> basketRepository, IBasketService basketService, IAsyncRepository<Product> profuctRepository)
         {
             _httpContextAccessor = httpContextAccessor;
             _basketRepository = basketRepository;
             _basketService = basketService;
+            _profuctRepository = profuctRepository;
         }
 
         public async Task<BasketItemsCountViewModel> GetBasketItemsCountViewModel(int basketId)
@@ -31,7 +33,41 @@ namespace Web.Services
             {
                 BasketItemsCount = await _basketService.BasketItemsCount(basketId)
             };
-    }
+        }
+
+        public async Task<BasketViewModel> GetBasketViewModel()
+        {
+            int basketId = await GetOrCreateBasketIdAsync(); //sepeti getir yoksa oluştur
+            var specBasket = new BasketWithItemsSpecification(basketId); //basketId'si eşleşen sepetteki ürünleriyle getir
+            var basket = await _basketRepository.FirstOrDefaultAsync(specBasket);// sepeti eşleştir
+            var productIds = basket.Items.Select(x => x.ProductId).ToArray(); //sepetteki ögelerin ilişkili olduğu ürünleri getiriyoruz
+            var specProducts = new ProductSpecification(productIds);
+            var products = await _profuctRepository.ListAsync(specProducts);
+            var basketItems = new List<BasketItemViewModel>();
+            foreach (var item in basket.Items)
+            {
+                var product = products.First(x => x.Id == item.ProductId);
+                basketItems.Add(new BasketItemViewModel()
+                {
+                    //sepet ogelerini urun bilgileriyle birlikte BasketViewModel nesnelerini oluşturduk ve listeye ekledik
+                    Id = item.Id,
+                    ProductId = item.ProductId,
+                    Quantity = item.Quantity,
+                    ProductName = product.Name,
+                    Price = product.Price,
+                    PictureUri = product.PictureUri
+                });
+            }
+
+            return new BasketViewModel()
+            {
+                //sepetId,AlıcıId,Sepet ogeleri ile basketViewModel oluşturduk
+                Id = basketId,
+                BuyerId = basket.BuyerId,
+                Items = basketItems
+
+            };
+        }
 
         public async Task<int> GetOrCreateBasketIdAsync()
         {
