@@ -27,12 +27,29 @@ namespace Web.Services
             _profuctRepository = profuctRepository;
         }
 
-        public async Task<BasketItemsCountViewModel> GetBasketItemsCountViewModel(int basketId)
+        public async Task<BasketItemsCountViewModel> GetBasketItemsCountViewModel(int? basketId = null)
         {
-            return new BasketItemsCountViewModel()
+            var vm = new BasketItemsCountViewModel();
+            if (!basketId.HasValue)
             {
-                BasketItemsCount = await _basketService.BasketItemsCount(basketId)
-            };
+                //sepet yoksa oluşturma sıfır döndür Returns basket item count ,returns 0 if basket does not exist.
+                string buyerId = GetBuyerId();
+                if (buyerId == null) return vm;
+                var spec = new BasketSpecification(buyerId);
+                var basket = await _basketRepository.FirstOrDefaultAsync(spec);
+                if (basket == null) return vm;
+                basketId = basket.Id;
+
+            }
+
+            //basketId değeri yoksa 0 döndürür varsa basketId değerini döndürür
+            vm.BasketItemsCount = await _basketService.BasketItemsCount(basketId.Value);
+            return vm;
+
+            //return new BasketItemsCountViewModel()
+            //{
+            //    BasketItemsCount = await _basketService.BasketItemsCount(basketId)
+            //};
         }
 
         public async Task<BasketViewModel> GetBasketViewModel()
@@ -67,6 +84,24 @@ namespace Web.Services
                 Items = basketItems
 
             };
+        }
+
+        public string GetBuyerId()
+        {
+            var context = _httpContextAccessor.HttpContext;
+            var user = context.User;
+            var anonId = context.Request.Cookies[Constants.BASKET_COOKIE_NAME];
+
+            return user.FindFirstValue(ClaimTypes.NameIdentifier) ?? anonId;
+            //null değilse sağdakini nullsa soldakini döndürür
+            //if (user.Identity.IsAuthenticated)
+            //    return user.FindFirstValue(ClaimTypes.NameIdentifier);
+            //else if (anonId != null)
+            //    return anonId;
+            //else
+            //    return null;
+
+
         }
 
         public async Task<int> GetOrCreateBasketIdAsync()
@@ -114,6 +149,16 @@ namespace Web.Services
                     return newBuyerId;
                 }
             }
+        }
+
+        public async Task TransferBasketsAsync(string userId)
+        {
+            var context = _httpContextAccessor.HttpContext;
+            //Transfer Baskets
+            var anonId = context.Request.Cookies[Constants.BASKET_COOKIE_NAME];
+            if (!string.IsNullOrEmpty(anonId))
+                await _basketService.TransferBasketAsync(anonId, userId);
+            context.Response.Cookies.Delete(Constants.BASKET_COOKIE_NAME); //anonim basket cooki'yi sil
         }
     }
 }

@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using ApplicationCore.Interfaces;
+using Web.Interfaces;
 
 namespace Web.Areas.Identity.Pages.Account
 {
@@ -20,16 +21,16 @@ namespace Web.Areas.Identity.Pages.Account
     public class LoginModel : PageModel
     {
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly IBasketService _basketService;
+        private readonly IBasketViewModelService _basketViewModelService;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ILogger<LoginModel> _logger;
 
         public LoginModel(SignInManager<ApplicationUser> signInManager,
             ILogger<LoginModel> logger,
-            UserManager<ApplicationUser> userManager, IBasketService basketService)
+            UserManager<ApplicationUser> userManager, IBasketViewModelService basketViewModelService)
         {
             _userManager = userManager;
-            _basketService = basketService;
+            _basketViewModelService = basketViewModelService;
             _signInManager = signInManager;
             _logger = logger;
         }
@@ -91,9 +92,7 @@ namespace Web.Areas.Identity.Pages.Account
                     //Transfer Baskets
                     var userId = (await _userManager.FindByEmailAsync(Input.Email)).Id;
 
-                    var anonId = Request.Cookies[Constants.BASKET_COOKIE_NAME];
-                    if (!string.IsNullOrEmpty(anonId))
-                        await _basketService.TransferBasketAsync(anonId, userId);
+                    await _basketViewModelService.TransferBasketsAsync(userId);
                     _logger.LogInformation("User logged in.");
                     return LocalRedirect(returnUrl);
                 }

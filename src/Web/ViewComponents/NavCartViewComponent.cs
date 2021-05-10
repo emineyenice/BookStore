@@ -17,8 +17,7 @@ namespace Web.ViewComponents
         }
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            var basketId = await _basketViewModelService.GetOrCreateBasketIdAsync();
-            var vm = await _basketViewModelService.GetBasketItemsCountViewModel(basketId);
+            var vm = await _basketViewModelService.GetBasketItemsCountViewModel();
             return View(vm);
         }
     }
