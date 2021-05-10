@@ -12,10 +12,12 @@ namespace ApplicationCore.Services
     public class BasketService : IBasketService
     {
         private readonly IAsyncRepository<BasketItem> _basketItemRepository;
+        private readonly IAsyncRepository<Basket> _basketRepository;
 
-        public BasketService(IAsyncRepository<BasketItem> basketItemRepository)
+        public BasketService(IAsyncRepository<BasketItem> basketItemRepository, IAsyncRepository<Basket> basketRepository)
         {
             _basketItemRepository = basketItemRepository;
+            _basketRepository = basketRepository;
         }
         public async Task AddItemToBasket(int basketId, int productId, int quantity)
         {
@@ -53,6 +55,47 @@ namespace ApplicationCore.Services
             var item = await _basketItemRepository.FirstOrDefaultAsync(spec); //sepeti getir
             await _basketItemRepository.DeleteAsync(item); //sil
 
+        }
+
+        public async Task TransferBasketAsync(string anonymousId, string userId)
+        {
+            var specAnon = new BasketWithItemsSpecification(anonymousId);
+            var basketAnon = await _basketRepository.FirstOrDefaultAsync(specAnon);
+
+            if (basketAnon == null || !basketAnon.Items.Any()) return; //sepet yoksa ya da sepet oluşmus ancak sepet ogesi yoksa dönüştürecek bisey yok
+
+            var specUser = new BasketWithItemsSpecification(userId);
+            var basketUser = await _basketRepository.FirstOrDefaultAsync(specUser);
+
+            if (basketUser == null)
+                //giriş yapmadan sepete oge eklediyse alıcıId lerini eşleştir
+                basketUser = await _basketRepository.AddAsync(new Basket() { BuyerId = userId });
+
+            //anonim sepetten kullanıcı sepetine transfer edelim
+            foreach (BasketItem itemAnon in basketAnon.Items)
+            {
+                var itemUser = basketUser.Items.FirstOrDefault(x => x.ProductId == itemAnon.ProductId);//kullanıcının sepetinde ürün var mı
+
+                if (itemUser == null)
+                {
+                    //sepette oge yoksa anonim basketId ile kullanıcı basket ıd'yi eşleştir
+                    //basketUser.Items.Add(new BasketItem() { ProductId = item.ProductId, });
+                    basketUser.Items.Add(new BasketItem()
+                    {
+                        ProductId = itemAnon.ProductId,
+                        Quantity = itemAnon.Quantity
+                    });
+                }
+
+                else
+                {
+                    // sepette urun varsa sayısını artır
+                    itemUser.Quantity += itemAnon.Quantity;
+                }
+
+            }
+            await _basketRepository.UpdateAsync(basketUser);
+            await _basketRepository.DeleteAsync(basketAnon); //anonim sepeti sil
         }
 
         public async Task UpdateBasketItem(int basketId, int basketItemId, int quantity)
