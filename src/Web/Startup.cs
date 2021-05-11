@@ -41,8 +41,10 @@ namespace Web
                 options.UseSqlServer(
                     Configuration.GetConnectionString("IdentityDbConnection")));
             services.AddDatabaseDeveloperPageExceptionFilter();
-            services.AddScoped<IBasketService, BasketService>();
+
             services.AddScoped(typeof(IAsyncRepository<>), typeof(EfRepository<>));
+            services.AddScoped<IBasketService, BasketService>();
+            services.AddScoped<IOrderService, OrderService>();
             services.AddScoped<IHomeViewModelService, HomeViewModelService>(); //Ne zaman IHomeViewModelService talep edilirse ona HomeViewModelService ver
             services.AddScoped<IBasketViewModelService, BasketViewModelService>();
 

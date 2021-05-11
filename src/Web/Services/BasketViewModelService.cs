@@ -27,6 +27,11 @@ namespace Web.Services
             _profuctRepository = profuctRepository;
         }
 
+        public async Task<List<BasketItemViewModel>> GetBasketItems()
+        {
+            return (await GetBasketViewModel()).Items;
+        }
+
         public async Task<BasketItemsCountViewModel> GetBasketItemsCountViewModel(int? basketId = null)
         {
             var vm = new BasketItemsCountViewModel();

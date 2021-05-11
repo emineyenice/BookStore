@@ -49,6 +49,13 @@ namespace ApplicationCore.Services
             return await _basketItemRepository.CountAsync(spec);
         }
 
+        public async Task DeleteBasketAsync(int basketId)
+        {
+            //ödemeden sonra sepeti silecek metot
+            var basket = await _basketRepository.GetByIdAsync(basketId); //sepeti Id siyle getir
+            await _basketRepository.DeleteAsync(basket);
+        }
+
         public async Task DeleteBasketItem(int basketId, int basketItemId)
         {
             var spec = new ManageBasketItemsSpecification(basketId, basketItemId); //basketId si ve basketıtemID sini alıyoruz
